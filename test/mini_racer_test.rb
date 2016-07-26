@@ -261,6 +261,17 @@ raise FooError, "I like foos"
     assert_equal("Undefined Conversion", context.eval("test()"))
   end
 
+  def test_timeout_during_marshall
+    context = MiniRacer::Context.new({timeout: 1000})
+    context.attach("long_running_proc", proc do |a|
+      a[rand(10000).to_s] = "a"
+      a
+    end)
+    assert_raises(MiniRacer::ScriptTerminatedError) do
+      context.eval("var a = {}; while(true) { a = long_running_proc(a); }")
+    end
+  end
+
   module Echo
     def self.say(thing)
       thing
