@@ -668,7 +668,7 @@ gvl_ruby_callback(void* data) {
 
 static void ruby_callback(const FunctionCallbackInfo<Value>& args) {
 
-    bool has_gvl = (bool)args.GetIsolate()->GetData(0);
+    bool has_gvl = (bool)((size_t)args.GetIsolate()->GetData(0)); // size_t cast here is to resolve undefined behavior -seanmakesgames (https://github.com/discourse/mini_racer/issues/33) 
 
     if(has_gvl) {
 	gvl_ruby_callback((void*)&args);
