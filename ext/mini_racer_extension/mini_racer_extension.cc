@@ -645,8 +645,8 @@ gvl_ruby_callback(void* data) {
     callback_data.args = ruby_args;
     callback_data.failed = false;
 
-    result = rb_rescue((VALUE(*)(...))&protected_callback, (VALUE)(&callback_data),
-			(VALUE(*)(...))&rescue_callback, (VALUE)(&callback_data));
+    result = rb_rescue(RUBY_METHOD_FUNC(protected_callback), (VALUE)(&callback_data), // I'm concerned about passing the callback_data as a VALUE when it's definitely not -seanmakesgames 
+			RUBY_METHOD_FUNC(rescue_callback), (VALUE)(&callback_data));
 
     if(callback_data.failed) {
 	VALUE parent = rb_iv_get(self, "@parent");
@@ -882,24 +882,24 @@ extern "C" {
 	rb_cFailedV8Conversion = rb_define_class_under(rb_mMiniRacer, "FailedV8Conversion", rb_cObject);
 
 	VALUE rb_cExternalFunction = rb_define_class_under(rb_cContext, "ExternalFunction", rb_cObject);
-	rb_define_method(rb_cContext, "stop", (VALUE(*)(...))&rb_context_stop, 0);
+	rb_define_method(rb_cContext, "stop", RUBY_METHOD_FUNC(rb_context_stop), 0);
 	rb_define_alloc_func(rb_cContext, allocate);
 	rb_define_alloc_func(rb_cSnapshot, allocate_snapshot);
 	rb_define_alloc_func(rb_cIsolate, allocate_isolate);
 
-	rb_define_private_method(rb_cContext, "eval_unsafe",(VALUE(*)(...))&rb_context_eval_unsafe, 1);
-	rb_define_private_method(rb_cContext, "init_with_isolate",(VALUE(*)(...))&rb_context_init_with_isolate, 1);
-	rb_define_private_method(rb_cExternalFunction, "notify_v8", (VALUE(*)(...))&rb_external_function_notify_v8, 0);
+	rb_define_private_method(rb_cContext, "eval_unsafe", RUBY_METHOD_FUNC(rb_context_eval_unsafe), 1);
+	rb_define_private_method(rb_cContext, "init_with_isolate", RUBY_METHOD_FUNC(rb_context_init_with_isolate), 1);
+	rb_define_private_method(rb_cExternalFunction, "notify_v8", RUBY_METHOD_FUNC(rb_external_function_notify_v8), 0);
 	rb_define_alloc_func(rb_cExternalFunction, allocate_external_function);
 
-	rb_define_method(rb_cSnapshot, "size", (VALUE(*)(...))&rb_snapshot_size, 0);
-	rb_define_method(rb_cSnapshot, "warmup!", (VALUE(*)(...))&rb_snapshot_warmup, 1);
-	rb_define_private_method(rb_cSnapshot, "load", (VALUE(*)(...))&rb_snapshot_load, 1);
+	rb_define_method(rb_cSnapshot, "size", RUBY_METHOD_FUNC(rb_snapshot_size), 0);
+	rb_define_method(rb_cSnapshot, "warmup!", RUBY_METHOD_FUNC(rb_snapshot_warmup), 1);
+	rb_define_private_method(rb_cSnapshot, "load", RUBY_METHOD_FUNC(rb_snapshot_load), 1);
 
-	rb_define_method(rb_cIsolate, "idle_notification", (VALUE(*)(...))&rb_isolate_idle_notification, 1);
-	rb_define_private_method(rb_cIsolate, "init_with_snapshot",(VALUE(*)(...))&rb_isolate_init_with_snapshot, 1);
+	rb_define_method(rb_cIsolate, "idle_notification", RUBY_METHOD_FUNC(rb_isolate_idle_notification), 1);
+	rb_define_private_method(rb_cIsolate, "init_with_snapshot", RUBY_METHOD_FUNC(rb_isolate_init_with_snapshot), 1);
 
-	rb_define_singleton_method(rb_cPlatform, "set_flag_as_str!", (VALUE(*)(...))&rb_platform_set_flag_as_str, 1);
+	rb_define_singleton_method(rb_cPlatform, "set_flag_as_str!", RUBY_METHOD_FUNC(rb_platform_set_flag_as_str), 1);
     }
 
 }
