@@ -527,6 +527,18 @@ raise FooError, "I like foos"
     v8.attach 'print', proc{|x| puts x}
     puts v8.eval "var o = {get bar() { print(42); }}; o"
   end
+  
+  def test_atomic_procs
+    v8 = MiniRacer::Context.new(timeout: 50)
+    count = 0
+    v8.attach('count', proc{|x| count -= 1; spin = 0; 3000.times { spin += 1 if (spin != 0) }; count += 1 }) #sleep(0.1);, true) <-- atomic
+
+    assert_raises(MiniRacer::ScriptTerminatedError) do
+      v8.eval "while(true) { count(); }"
+    end
+
+    assert_equal(count, 0)
+  end
 
   def test_function_rval
     context = MiniRacer::Context.new
